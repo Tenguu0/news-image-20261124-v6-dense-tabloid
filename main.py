@@ -5,20 +5,21 @@ from pathlib import Path
 
 
 def publish():
-    target = os.environ.get("MAKEFUN_OUTPUT_DIR")
-    if not target:
-        print("error: MAKEFUN_OUTPUT_DIR is not set", file=sys.stderr)
+    source = Path(__file__).resolve().parent / "entry.png"
+    dest_dir = os.environ.get("MAKEFUN_OUTPUT_DIR")
+    if not dest_dir:
+        print("MAKEFUN_OUTPUT_DIR is not set", file=sys.stderr)
         return 2
-    folder = Path(__file__).resolve().parent
-    picture = folder / "entry.png"
-    if not picture.is_file():
-        print(f"error: {picture} is missing", file=sys.stderr)
+    if not source.is_file():
+        print("entry.png is missing next to main.py", file=sys.stderr)
         return 2
-    out_folder = Path(target)
-    out_folder.mkdir(parents=True, exist_ok=True)
-    out_file = out_folder / "entry.png"
-    shutil.copyfile(picture, out_file)
-    print(out_file)
+    out_dir = Path(dest_dir)
+    try:
+        out_dir.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(source, out_dir / "entry.png")
+    except OSError as problem:
+        print(f"could not write entry.png: {problem}", file=sys.stderr)
+        return 2
     return 0
 
 
